@@ -251,24 +251,24 @@ typedef void (*UniffiForeignFutureCompleteVoid)(uint64_t, UniffiForeignFutureStr
     );
 
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_GEN_WITNESS_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_GEN_WITNESS_WRAPPER
-uint64_t uniffi_ios_ezkl_fn_func_gen_witness_wrapper(RustBuffer input_json, RustBuffer compiled_circuit, RustBuffer vk, RustBuffer srs
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_GEN_WITNESS
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_GEN_WITNESS
+uint64_t uniffi_ios_ezkl_fn_func_gen_witness(RustBuffer input_json, RustBuffer compiled_circuit, RustBuffer vk, RustBuffer srs
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE_ADVANCED_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE_ADVANCED_WRAPPER
-RustBuffer uniffi_ios_ezkl_fn_func_prove_advanced_wrapper(RustBuffer witness_json, RustBuffer compiled_circuit, RustBuffer pk, RustBuffer srs, RustBuffer proof_type, RustBuffer check_mode, RustCallStatus *_Nonnull out_status
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE
+RustBuffer uniffi_ios_ezkl_fn_func_prove(RustBuffer witness_json, RustBuffer compiled_circuit, RustBuffer pk, RustBuffer srs, RustCallStatus *_Nonnull out_status
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE_WRAPPER
-RustBuffer uniffi_ios_ezkl_fn_func_prove_wrapper(RustBuffer witness_json, RustBuffer compiled_circuit, RustBuffer pk, RustBuffer srs, RustCallStatus *_Nonnull out_status
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE_ADVANCED
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_PROVE_ADVANCED
+RustBuffer uniffi_ios_ezkl_fn_func_prove_advanced(RustBuffer witness_json, RustBuffer compiled_circuit, RustBuffer pk, RustBuffer srs, RustBuffer proof_type, RustBuffer check_mode, RustCallStatus *_Nonnull out_status
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_VERIFY_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_VERIFY_WRAPPER
-int8_t uniffi_ios_ezkl_fn_func_verify_wrapper(RustBuffer proof_json, RustBuffer settings_json, RustBuffer vk, RustBuffer srs, RustCallStatus *_Nonnull out_status
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_VERIFY
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_FN_FUNC_VERIFY
+int8_t uniffi_ios_ezkl_fn_func_verify(RustBuffer proof_json, RustBuffer settings_json, RustBuffer vk, RustBuffer srs, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_FFI_IOS_EZKL_RUSTBUFFER_ALLOC
@@ -551,27 +551,27 @@ void ffi_ios_ezkl_rust_future_free_void(uint64_t handle
 void ffi_ios_ezkl_rust_future_complete_void(uint64_t handle, RustCallStatus *_Nonnull out_status
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_GEN_WITNESS_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_GEN_WITNESS_WRAPPER
-uint16_t uniffi_ios_ezkl_checksum_func_gen_witness_wrapper(void
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_GEN_WITNESS
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_GEN_WITNESS
+uint16_t uniffi_ios_ezkl_checksum_func_gen_witness(void
     
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE_ADVANCED_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE_ADVANCED_WRAPPER
-uint16_t uniffi_ios_ezkl_checksum_func_prove_advanced_wrapper(void
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE
+uint16_t uniffi_ios_ezkl_checksum_func_prove(void
     
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE_WRAPPER
-uint16_t uniffi_ios_ezkl_checksum_func_prove_wrapper(void
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE_ADVANCED
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_PROVE_ADVANCED
+uint16_t uniffi_ios_ezkl_checksum_func_prove_advanced(void
     
 );
 #endif
-#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_VERIFY_WRAPPER
-#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_VERIFY_WRAPPER
-uint16_t uniffi_ios_ezkl_checksum_func_verify_wrapper(void
+#ifndef UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_VERIFY
+#define UNIFFI_FFIDEF_UNIFFI_IOS_EZKL_CHECKSUM_FUNC_VERIFY
+uint16_t uniffi_ios_ezkl_checksum_func_verify(void
     
 );
 #endif

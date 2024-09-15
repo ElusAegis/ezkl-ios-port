@@ -13,7 +13,7 @@ struct ProofModel {
         let networkData = try Data(contentsOf: URL(fileURLWithPath: networkPath))
         let pkData = try Data(contentsOf: URL(fileURLWithPath: pkPath))
 
-        return try proveWrapper(witnessJson: witnessJson, compiledCircuit: networkData, pk: pkData, srs: srsData)
+        return try prove(witnessJson: witnessJson, compiledCircuit: networkData, pk: pkData, srs: srsData)
     }
 
     func handleEZKLError(_ error: EzklError, statusMessage: inout String) {

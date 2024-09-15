@@ -634,20 +634,27 @@ private func uniffiFutureContinuationCallback(handle: UInt64, pollResult: Int8) 
 }
 
 /**
- * Generate a witness for a given circuit and input data.
- * Witness is then used to generate a proof.
+ * Generates a witness for a given circuit and input data.
+ *
+ * The witness is a necessary component for generating a proof.
  *
  * # Arguments
- * input_json: String - JSON string representing the input data for the circuit.
- * compiled_circuit: Vec<Bytes> - Compiled circuit binary.
- * vk: Vec<Bytes> - Verification key binary.
- * srs: Vec<Bytes> - Structured reference string binary.
+ *
+ * * `input_json` - A `String` containing the JSON representation of the input data for the circuit.
+ * * `compiled_circuit` - A `Vec<u8>` containing the compiled circuit in binary form.
+ * * `vk` - A `Vec<u8>` containing the Verification Key (VK) in binary form.
+ * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
+ *
+ * # Returns
+ *
+ * * `Ok(String)` - The generated witness as a JSON `String`.
+ * * `Err(ExternalEZKLError)` - An error that occurred during witness generation.
  */
-public func genWitnessWrapper(inputJson: String, compiledCircuit: Data, vk: Data, srs: Data) async throws -> String {
+public func genWitness(inputJson: String, compiledCircuit: Data, vk: Data, srs: Data) async throws -> String {
     return
         try await uniffiRustCallAsync(
             rustFutureFunc: {
-                uniffi_ios_ezkl_fn_func_gen_witness_wrapper(FfiConverterString.lower(inputJson), FfiConverterData.lower(compiledCircuit), FfiConverterData.lower(vk), FfiConverterData.lower(srs))
+                uniffi_ios_ezkl_fn_func_gen_witness(FfiConverterString.lower(inputJson), FfiConverterData.lower(compiledCircuit), FfiConverterData.lower(vk), FfiConverterData.lower(srs))
             },
             pollFunc: ffi_ios_ezkl_rust_future_poll_rust_buffer,
             completeFunc: ffi_ios_ezkl_rust_future_complete_rust_buffer,
@@ -658,20 +665,55 @@ public func genWitnessWrapper(inputJson: String, compiledCircuit: Data, vk: Data
 }
 
 /**
- * Proves a circuit with the given witness and parameters
- * This function is used for advanced proving configurations
+ * Proves a circuit using the provided witness, compiled circuit, proving key, and SRS.
+ *
+ * This function abstracts away configuration details by using default proving configurations.
  *
  * # Arguments
- * witness_json: String - JSON string representing the witness generated for the circuit input.
- * compiled_circuit: Vec<Bytes> - Compiled circuit binary.
- * vk: Vec<Bytes> - Verification key binary.
- * srs: Vec<Bytes> - Structured reference string binary.
- * proof_type: ProofTypeWrapper - Proof type to be used for proving. Default is Single. ForAggr is used for aggregation proofs.
- * check_mode: CheckModeWrapper - Check mode to be used for proving. Default is SAFE. UNSAFE is used for unsafe proving useful for debugging.
+ *
+ * * `witness_json` - A `String` containing the JSON representation of the witness generated for the circuit input.
+ * * `compiled_circuit` - A `Vec<u8>` containing the compiled circuit in binary form.
+ * * `pk` - A `Vec<u8>` containing the Proving Key (PK) in binary form.
+ * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
+ *
+ * # Returns
+ *
+ * * `Ok(String)` - The generated proof as a JSON `String`.
+ * * `Err(ExternalEZKLError)` - An error that occurred during the proving process.
  */
-public func proveAdvancedWrapper(witnessJson: String, compiledCircuit: Data, pk: Data, srs: Data, proofType: ProofTypeWrapper, checkMode: CheckModeWrapper) throws -> String {
+public func prove(witnessJson: String, compiledCircuit: Data, pk: Data, srs: Data) throws -> String {
     return try FfiConverterString.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
-        uniffi_ios_ezkl_fn_func_prove_advanced_wrapper(
+        uniffi_ios_ezkl_fn_func_prove(
+            FfiConverterString.lower(witnessJson),
+            FfiConverterData.lower(compiledCircuit),
+            FfiConverterData.lower(pk),
+            FfiConverterData.lower(srs), $0
+        )
+    })
+}
+
+/**
+ * Proves a circuit using the provided witness, compiled circuit, proving key, and SRS.
+ *
+ * This function is used for advanced proving configurations.
+ *
+ * # Arguments
+ *
+ * * `witness_json` - A `String` containing the JSON representation of the witness generated for the circuit input.
+ * * `compiled_circuit` - A `Vec<u8>` containing the compiled circuit in binary form.
+ * * `pk` - A `Vec<u8>` containing the Proving Key (PK) in binary form.
+ * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
+ * * `proof_type` - A `ProofTypeWrapper` enum value representing the proof type to be used for proving. Default is `Single`. For aggregation proofs, use `ForAggr`.
+ * * `check_mode` - A `CheckModeWrapper` enum value representing the check mode to be used for proving. Default is `SAFE`. For unsafe proving useful for debugging, use `UNSAFE`.
+ *
+ * # Returns
+ *
+ * * `Ok(String)` - The generated proof as a JSON `String`.
+ * * `Err(ExternalEZKLError)` - An error that occurred during the proving process.
+ */
+public func proveAdvanced(witnessJson: String, compiledCircuit: Data, pk: Data, srs: Data, proofType: ProofTypeWrapper, checkMode: CheckModeWrapper) throws -> String {
+    return try FfiConverterString.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ios_ezkl_fn_func_prove_advanced(
             FfiConverterString.lower(witnessJson),
             FfiConverterData.lower(compiledCircuit),
             FfiConverterData.lower(pk),
@@ -683,38 +725,23 @@ public func proveAdvancedWrapper(witnessJson: String, compiledCircuit: Data, pk:
 }
 
 /**
- * Proves a circuit with the given witness and parameters
- * This function is used for default proving configurations to abstract the configuration details
+ * Verifies a proof using the provided proof data, circuit settings, verification key, and SRS.
  *
  * # Arguments
- * witness_json: String - JSON string representing the witness generated for the circuit input.
- * compiled_circuit: Vec<Bytes> - Compiled circuit binary.
- * vk: Vec<Bytes> - Verification key binary.
- * srs: Vec<Bytes> - Structured reference string binary.
- */
-public func proveWrapper(witnessJson: String, compiledCircuit: Data, pk: Data, srs: Data) throws -> String {
-    return try FfiConverterString.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
-        uniffi_ios_ezkl_fn_func_prove_wrapper(
-            FfiConverterString.lower(witnessJson),
-            FfiConverterData.lower(compiledCircuit),
-            FfiConverterData.lower(pk),
-            FfiConverterData.lower(srs), $0
-        )
-    })
-}
-
-/**
- * Verify a proof with the given parameters
  *
- * # Arguments
- * proof_json: String - JSON string representing the proof to be verified.
- * settings_json: String - JSON string representing the settings for the circuit.
- * vk: Vec<Bytes> - Verification key binary.
- * srs: Vec<Bytes> - Structured reference string binary.
+ * * `proof_json` - A `String` containing the JSON representation of the proof to be verified.
+ * * `settings_json` - A `String` containing the JSON representation of the circuit settings.
+ * * `vk` - A `Vec<u8>` containing the Verification Key (VK) in binary form.
+ * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
+ *
+ * # Returns
+ *
+ * * `Ok(bool)` - `true` if the proof is valid, `false` if the proof is invalid.
+ * * `Err(ExternalEZKLError)` - An error that occurred during verification.
  */
-public func verifyWrapper(proofJson: String, settingsJson: String, vk: Data, srs: Data) throws -> Bool {
+public func verify(proofJson: String, settingsJson: String, vk: Data, srs: Data) throws -> Bool {
     return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
-        uniffi_ios_ezkl_fn_func_verify_wrapper(
+        uniffi_ios_ezkl_fn_func_verify(
             FfiConverterString.lower(proofJson),
             FfiConverterString.lower(settingsJson),
             FfiConverterData.lower(vk),
@@ -739,16 +766,16 @@ private var initializationResult: InitializationResult = {
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_gen_witness_wrapper() != 32957 {
+    if uniffi_ios_ezkl_checksum_func_gen_witness() != 19002 {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_prove_advanced_wrapper() != 9119 {
+    if uniffi_ios_ezkl_checksum_func_prove() != 14160 {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_prove_wrapper() != 37818 {
+    if uniffi_ios_ezkl_checksum_func_prove_advanced() != 31383 {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_verify_wrapper() != 4148 {
+    if uniffi_ios_ezkl_checksum_func_verify() != 5110 {
         return InitializationResult.apiChecksumMismatch
     }
 
