@@ -39,16 +39,19 @@ final class EzklAppUITests: XCTestCase {
 
         // 3. Wait for "Verify Proof" button to be enabled (up to 120 seconds)
         let verifyProofButton = app.buttons["Verify Proof"]
-        let verifyProofButtonExists = verifyProofButton.waitForExistence(timeout: 1500)
+        let verifyProofButtonExists = verifyProofButton.waitForExistence(timeout: 1200)
         XCTAssertTrue(verifyProofButtonExists, "Verify Proof button should exist after proof is generated")
+        print("'Verify Proof' button appeared.")
 
-        // Wait for the button to become enabled for up to 120 seconds, checking every 1 second
         var verifyWaitTime = 0.0
-        while !verifyProofButton.isEnabled && verifyWaitTime < 1500 {
-            sleep(1) // wait for 1 second before checking again
+        print("Waiting for 'Verify Proof' button to become enabled...")
+        while !verifyProofButton.isEnabled && verifyWaitTime < 1200 {
+            sleep(1)
             verifyWaitTime += 1.0
+            print("Check at \(verifyWaitTime) seconds: isEnabled = \(verifyProofButton.isEnabled)")
         }
-        XCTAssertTrue(verifyProofButton.isEnabled, "Verify Proof button should be enabled within 120 seconds (Note that this might bee too short for some machines, hence the test will fail)")
+        XCTAssertTrue(verifyProofButton.isEnabled, "Verify Proof button should be enabled within 1200 seconds")
+        print("'Verify Proof' button is enabled.")
         verifyProofButton.tap()
 
         // 4. Ensure no errors in the status message
