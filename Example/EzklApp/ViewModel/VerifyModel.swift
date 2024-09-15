@@ -13,7 +13,7 @@ struct VerifyModel {
         let vkData = try Data(contentsOf: URL(fileURLWithPath: vkPath))
         let settingsJson = try String(contentsOf: URL(fileURLWithPath: settingsPath), encoding: .utf8)
 
-        return try verifyWrapper(proofJson: proofJson, settingsJson: settingsJson, vk: vkData, srs: srsData)
+        return try verify(proofJson: proofJson, settingsJson: settingsJson, vk: vkData, srs: srsData)
     }
 
     func handleEZKLError(_ error: EzklError, statusMessage: inout String) {

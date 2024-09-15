@@ -15,7 +15,7 @@ struct WitnessModel {
         let vkData = try Data(contentsOf: URL(fileURLWithPath: vkPath))
         let inputData = try String(contentsOf: URL(fileURLWithPath: inputPath), encoding: .utf8)
 
-        return try await genWitnessWrapper(inputJson: inputData, compiledCircuit: networkData, vk: vkData, srs: srsData)
+        return try await genWitness(inputJson: inputData, compiledCircuit: networkData, vk: vkData, srs: srsData)
     }
 
     func handleEZKLError(_ error: EzklError, statusMessage: inout String) {
