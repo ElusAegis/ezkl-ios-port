@@ -1,10 +1,3 @@
-//
-//  EzklAppTests.swift
-//  EzklAppTests
-//
-//  Created by Artem Grigor on 15/09/2024.
-//
-
 import XCTest
 import EzklPackage
 @testable import EzklApp

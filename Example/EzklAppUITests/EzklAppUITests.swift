@@ -1,10 +1,3 @@
-//
-//  EzklAppUITests.swift
-//  EzklAppUITests
-//
-//  Created by Artem Grigor on 15/09/2024.
-//
-
 import XCTest
 
 final class EzklAppUITests: XCTestCase {
