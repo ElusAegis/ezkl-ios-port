@@ -1,0 +1,35 @@
+name: Update EzklCoreBindings
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-update:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout ezkl-ios-port
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Set up Xcode environment
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          sudo xcodebuild -license accept
+
+      - name: Run Package Tests
+        run: |
+          xcodebuild test \
+            -scheme . \
+            -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
+
+      - name: Run Example App Tests
+        run: |
+          cd Example
+          xcodebuild test \
+            -workspace EzklApp.xcworkspace \
+            -scheme EzklApp \
+            -destination 'platform=iOS Simulator,name=iPhone 12,OS=latest'
