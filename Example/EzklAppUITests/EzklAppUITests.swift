@@ -9,7 +9,10 @@ final class EzklAppUITests: XCTestCase {
         continueAfterFailure = false
 
         // Launch the application
+        app.launchEnvironment["UI_TESTS_TIMEOUT"] = "60"
         app.launch()
+
+        XCTAssertTrue(app.waitForExistence(timeout: 60), "The app did not launch in time.")
     }
 
     func testButtonClicksInOrder() throws {
