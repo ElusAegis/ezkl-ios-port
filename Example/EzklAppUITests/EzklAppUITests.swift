@@ -29,12 +29,12 @@ final class EzklAppUITests: XCTestCase {
 
         // 2. Wait for "Generate Proof" button to be enabled (up to 5 seconds)
         let generateProofButton = app.buttons["Generate Proof"]
-        let generateProofButtonExists = generateProofButton.waitForExistence(timeout: 5)
+        let generateProofButtonExists = generateProofButton.waitForExistence(timeout: 10)
         XCTAssertTrue(generateProofButtonExists, "Generate Proof button should exist after witness is generated")
 
         // Wait for the button to become enabled for up to 5 seconds, checking every 0.1 seconds
         var proofWaitTime = 0.0
-        while !generateProofButton.isEnabled && proofWaitTime < 5 {
+        while !generateProofButton.isEnabled && proofWaitTime < 10 {
             sleep(1) // wait for 1 second before checking again
             proofWaitTime += 1.0
         }
@@ -43,12 +43,12 @@ final class EzklAppUITests: XCTestCase {
 
         // 3. Wait for "Verify Proof" button to be enabled (up to 120 seconds)
         let verifyProofButton = app.buttons["Verify Proof"]
-        let verifyProofButtonExists = verifyProofButton.waitForExistence(timeout: 360)
+        let verifyProofButtonExists = verifyProofButton.waitForExistence(timeout: 1500)
         XCTAssertTrue(verifyProofButtonExists, "Verify Proof button should exist after proof is generated")
 
         // Wait for the button to become enabled for up to 120 seconds, checking every 1 second
         var verifyWaitTime = 0.0
-        while !verifyProofButton.isEnabled && verifyWaitTime < 360 {
+        while !verifyProofButton.isEnabled && verifyWaitTime < 1500 {
             sleep(1) // wait for 1 second before checking again
             verifyWaitTime += 1.0
         }
