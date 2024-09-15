@@ -27,13 +27,20 @@ jobs:
 
       - name: Run Package Tests
         run: |
-          xcodebuild test -scheme EzklPackage -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.5' -resultBundlePath ./testResults
+          xcodebuild test \
+            -scheme EzklPackage \
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.5' \
+            -resultBundlePath ./testResults
 
       - name: Run Example App Tests
         run: |
           cd Example
-          xcodebuild test -project Example.xcodeproj -scheme EzklApp -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.5' -resultBundlePath ./exampleTestResults
-
+          xcodebuild test \
+            -project Example.xcodeproj \
+            -scheme EzklApp \
+            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=17.5' \
+            -parallel-testing-enabled NO \
+            -resultBundlePath ./exampleTestResults
       - name: Upload Test Results (Package)
         if: always()
         uses: actions/upload-artifact@v3
@@ -46,4 +53,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: example-app-test-results
-          path: ./exampleTestResults
+          path: ./Example/exampleTestResults
