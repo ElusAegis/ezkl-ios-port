@@ -5,6 +5,16 @@ on:
     branches:
       - main
 
+  pull_request:
+      branches:
+        - main
+      types:
+        - ready_for_review
+
+  # Option to manually trigger the workflow
+  workflow_dispatch:
+
+
 jobs:
   build-and-test:
     runs-on: macos-latest
