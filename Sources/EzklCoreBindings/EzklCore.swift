@@ -514,6 +514,7 @@ public struct FfiConverterTypeEZKLError: FfiConverterRustBuffer {
         case 1: return try .InternalError(
                 FfiConverterString.read(from: &buf)
             )
+
         case 2: return try .InvalidInput(
                 FfiConverterString.read(from: &buf)
             )
