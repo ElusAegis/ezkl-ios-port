@@ -7,8 +7,8 @@ import Foundation
 // Depending on the consumer's build setup, the low-level FFI code
 // might be in a separate module, or it might be compiled inline into
 // this module. This is a bit of light hackery to work with both.
-#if canImport(ios_ezklFFI)
-    import ios_ezklFFI
+#if canImport(ezklFFI)
+    import ezklFFI
 #endif
 
 private extension RustBuffer {
@@ -25,13 +25,13 @@ private extension RustBuffer {
     }
 
     static func from(_ ptr: UnsafeBufferPointer<UInt8>) -> RustBuffer {
-        try! rustCall { ffi_ios_ezkl_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+        try! rustCall { ffi_ezkl_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
     }
 
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_ios_ezkl_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_ezkl_rustbuffer_free(self, $0) }
     }
 }
 
@@ -381,6 +381,19 @@ private class UniffiHandleMap<T> {
 
 // Public interface members begin here.
 
+private struct FfiConverterUInt64: FfiConverterPrimitive {
+    typealias FfiType = UInt64
+    typealias SwiftType = UInt64
+
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> UInt64 {
+        return try lift(readInt(&buf))
+    }
+
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        writeInt(&buf, lower(value))
+    }
+}
+
 private struct FfiConverterBool: FfiConverter {
     typealias FfiType = Int8
     typealias SwiftType = Bool
@@ -455,53 +468,14 @@ private struct FfiConverterData: FfiConverterRustBuffer {
     }
 }
 
-// Note that we don't yet support `indirect` for enums.
-// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
-
-public enum CheckModeWrapper {
-    case safe
-    case unsafe
-}
-
-public struct FfiConverterTypeCheckModeWrapper: FfiConverterRustBuffer {
-    typealias SwiftType = CheckModeWrapper
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> CheckModeWrapper {
-        let variant: Int32 = try readInt(&buf)
-        switch variant {
-        case 1: return .safe
-
-        case 2: return .unsafe
-
-        default: throw UniffiInternalError.unexpectedEnumCase
-        }
-    }
-
-    public static func write(_ value: CheckModeWrapper, into buf: inout [UInt8]) {
-        switch value {
-        case .safe:
-            writeInt(&buf, Int32(1))
-
-        case .unsafe:
-            writeInt(&buf, Int32(2))
-        }
-    }
-}
-
-public func FfiConverterTypeCheckModeWrapper_lift(_ buf: RustBuffer) throws -> CheckModeWrapper {
-    return try FfiConverterTypeCheckModeWrapper.lift(buf)
-}
-
-public func FfiConverterTypeCheckModeWrapper_lower(_ value: CheckModeWrapper) -> RustBuffer {
-    return FfiConverterTypeCheckModeWrapper.lower(value)
-}
-
-extension CheckModeWrapper: Equatable, Hashable {}
-
+/**
+ * Wrapper around the Error Message
+ */
 public enum EzklError {
+    /**
+     * Some Comment
+     */
     case InternalError(String
-    )
-    case InvalidInput(String
     )
 }
 
@@ -515,10 +489,6 @@ public struct FfiConverterTypeEZKLError: FfiConverterRustBuffer {
                 FfiConverterString.read(from: &buf)
             )
 
-        case 2: return try .InvalidInput(
-                FfiConverterString.read(from: &buf)
-            )
-
         default: throw UniffiInternalError.unexpectedEnumCase
         }
     }
@@ -527,10 +497,6 @@ public struct FfiConverterTypeEZKLError: FfiConverterRustBuffer {
         switch value {
         case let .InternalError(v1):
             writeInt(&buf, Int32(1))
-            FfiConverterString.write(v1, into: &buf)
-
-        case let .InvalidInput(v1):
-            writeInt(&buf, Int32(2))
             FfiConverterString.write(v1, into: &buf)
         }
     }
@@ -544,209 +510,206 @@ extension EzklError: Foundation.LocalizedError {
     }
 }
 
-// Note that we don't yet support `indirect` for enums.
-// See https://github.com/mozilla/uniffi-rs/issues/396 for further discussion.
+private struct FfiConverterOptionData: FfiConverterRustBuffer {
+    typealias SwiftType = Data?
 
-public enum ProofTypeWrapper {
-    case single
-    case forAggr
-}
-
-public struct FfiConverterTypeProofTypeWrapper: FfiConverterRustBuffer {
-    typealias SwiftType = ProofTypeWrapper
-
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> ProofTypeWrapper {
-        let variant: Int32 = try readInt(&buf)
-        switch variant {
-        case 1: return .single
-
-        case 2: return .forAggr
-
-        default: throw UniffiInternalError.unexpectedEnumCase
+    public static func write(_ value: SwiftType, into buf: inout [UInt8]) {
+        guard let value = value else {
+            writeInt(&buf, Int8(0))
+            return
         }
+        writeInt(&buf, Int8(1))
+        FfiConverterData.write(value, into: &buf)
     }
 
-    public static func write(_ value: ProofTypeWrapper, into buf: inout [UInt8]) {
-        switch value {
-        case .single:
-            writeInt(&buf, Int32(1))
-
-        case .forAggr:
-            writeInt(&buf, Int32(2))
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> SwiftType {
+        switch try readInt(&buf) as Int8 {
+        case 0: return nil
+        case 1: return try FfiConverterData.read(from: &buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
         }
     }
 }
 
-public func FfiConverterTypeProofTypeWrapper_lift(_ buf: RustBuffer) throws -> ProofTypeWrapper {
-    return try FfiConverterTypeProofTypeWrapper.lift(buf)
-}
-
-public func FfiConverterTypeProofTypeWrapper_lower(_ value: ProofTypeWrapper) -> RustBuffer {
-    return FfiConverterTypeProofTypeWrapper.lower(value)
-}
-
-extension ProofTypeWrapper: Equatable, Hashable {}
-
-private let UNIFFI_RUST_FUTURE_POLL_READY: Int8 = 0
-private let UNIFFI_RUST_FUTURE_POLL_MAYBE_READY: Int8 = 1
-
-private let uniffiContinuationHandleMap = UniffiHandleMap<UnsafeContinuation<Int8, Never>>()
-
-private func uniffiRustCallAsync<F, T>(
-    rustFutureFunc: () -> UInt64,
-    pollFunc: (UInt64, @escaping UniffiRustFutureContinuationCallback, UInt64) -> Void,
-    completeFunc: (UInt64, UnsafeMutablePointer<RustCallStatus>) -> F,
-    freeFunc: (UInt64) -> Void,
-    liftFunc: (F) throws -> T,
-    errorHandler: ((RustBuffer) throws -> Swift.Error)?
-) async throws -> T {
-    // Make sure to call uniffiEnsureInitialized() since future creation doesn't have a
-    // RustCallStatus param, so doesn't use makeRustCall()
-    uniffiEnsureInitialized()
-    let rustFuture = rustFutureFunc()
-    defer {
-        freeFunc(rustFuture)
-    }
-    var pollResult: Int8
-    repeat {
-        pollResult = await withUnsafeContinuation {
-            pollFunc(
-                rustFuture,
-                uniffiFutureContinuationCallback,
-                uniffiContinuationHandleMap.insert(obj: $0)
-            )
-        }
-    } while pollResult != UNIFFI_RUST_FUTURE_POLL_READY
-
-    return try liftFunc(makeRustCall(
-        { completeFunc(rustFuture, $0) },
-        errorHandler: errorHandler
-    ))
-}
-
-// Callback handlers for an async calls.  These are invoked by Rust when the future is ready.  They
-// lift the return value or error and resume the suspended function.
-private func uniffiFutureContinuationCallback(handle: UInt64, pollResult: Int8) {
-    if let continuation = try? uniffiContinuationHandleMap.remove(handle: handle) {
-        continuation.resume(returning: pollResult)
-    } else {
-        print("uniffiFutureContinuationCallback invalid handle")
-    }
-}
-
 /**
- * Generates a witness for a given circuit and input data.
- *
- * The witness is a necessary component for generating a proof.
- *
- * # Arguments
- *
- * * `input_json` - A `String` containing the JSON representation of the input data for the circuit.
- * * `compiled_circuit` - A `Vec<u8>` containing the compiled circuit in binary form.
- * * `vk` - A `Vec<u8>` containing the Verification Key (VK) in binary form.
- * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
- *
- * # Returns
- *
- * * `Ok(String)` - The generated witness as a JSON `String`.
- * * `Err(ExternalEZKLError)` - An error that occurred during witness generation.
+ * Validate the compiled circuit
  */
-public func genWitness(inputJson: String, compiledCircuit: Data, vk: Data, srs: Data) async throws -> String {
-    return
-        try await uniffiRustCallAsync(
-            rustFutureFunc: {
-                uniffi_ios_ezkl_fn_func_gen_witness(FfiConverterString.lower(inputJson), FfiConverterData.lower(compiledCircuit), FfiConverterData.lower(vk), FfiConverterData.lower(srs))
-            },
-            pollFunc: ffi_ios_ezkl_rust_future_poll_rust_buffer,
-            completeFunc: ffi_ios_ezkl_rust_future_complete_rust_buffer,
-            freeFunc: ffi_ios_ezkl_rust_future_free_rust_buffer,
-            liftFunc: FfiConverterString.lift,
-            errorHandler: FfiConverterTypeEZKLError.lift
-        )
-}
-
-/**
- * Proves a circuit using the provided witness, compiled circuit, proving key, and SRS.
- *
- * This function abstracts away configuration details by using default proving configurations.
- *
- * # Arguments
- *
- * * `witness_json` - A `String` containing the JSON representation of the witness generated for the circuit input.
- * * `compiled_circuit` - A `Vec<u8>` containing the compiled circuit in binary form.
- * * `pk` - A `Vec<u8>` containing the Proving Key (PK) in binary form.
- * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
- *
- * # Returns
- *
- * * `Ok(String)` - The generated proof as a JSON `String`.
- * * `Err(ExternalEZKLError)` - An error that occurred during the proving process.
- */
-public func prove(witnessJson: String, compiledCircuit: Data, pk: Data, srs: Data) throws -> String {
-    return try FfiConverterString.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
-        uniffi_ios_ezkl_fn_func_prove(
-            FfiConverterString.lower(witnessJson),
-            FfiConverterData.lower(compiledCircuit),
-            FfiConverterData.lower(pk),
-            FfiConverterData.lower(srs), $0
-        )
-    })
-}
-
-/**
- * Proves a circuit using the provided witness, compiled circuit, proving key, and SRS.
- *
- * This function is used for advanced proving configurations.
- *
- * # Arguments
- *
- * * `witness_json` - A `String` containing the JSON representation of the witness generated for the circuit input.
- * * `compiled_circuit` - A `Vec<u8>` containing the compiled circuit in binary form.
- * * `pk` - A `Vec<u8>` containing the Proving Key (PK) in binary form.
- * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
- * * `proof_type` - A `ProofTypeWrapper` enum value representing the proof type to be used for proving. Default is `Single`. For aggregation proofs, use `ForAggr`.
- * * `check_mode` - A `CheckModeWrapper` enum value representing the check mode to be used for proving. Default is `SAFE`. For unsafe proving useful for debugging, use `UNSAFE`.
- *
- * # Returns
- *
- * * `Ok(String)` - The generated proof as a JSON `String`.
- * * `Err(ExternalEZKLError)` - An error that occurred during the proving process.
- */
-public func proveAdvanced(witnessJson: String, compiledCircuit: Data, pk: Data, srs: Data, proofType: ProofTypeWrapper, checkMode: CheckModeWrapper) throws -> String {
-    return try FfiConverterString.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
-        uniffi_ios_ezkl_fn_func_prove_advanced(
-            FfiConverterString.lower(witnessJson),
-            FfiConverterData.lower(compiledCircuit),
-            FfiConverterData.lower(pk),
-            FfiConverterData.lower(srs),
-            FfiConverterTypeProofTypeWrapper.lower(proofType),
-            FfiConverterTypeCheckModeWrapper.lower(checkMode), $0
-        )
-    })
-}
-
-/**
- * Verifies a proof using the provided proof data, circuit settings, verification key, and SRS.
- *
- * # Arguments
- *
- * * `proof_json` - A `String` containing the JSON representation of the proof to be verified.
- * * `settings_json` - A `String` containing the JSON representation of the circuit settings.
- * * `vk` - A `Vec<u8>` containing the Verification Key (VK) in binary form.
- * * `srs` - A `Vec<u8>` containing the Structured Reference String (SRS) in binary form.
- *
- * # Returns
- *
- * * `Ok(bool)` - `true` if the proof is valid, `false` if the proof is invalid.
- * * `Err(ExternalEZKLError)` - An error that occurred during verification.
- */
-public func verify(proofJson: String, settingsJson: String, vk: Data, srs: Data) throws -> Bool {
+public func compiledCircuitValidation(compiledCircuit: Data) throws -> Bool {
     return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
-        uniffi_ios_ezkl_fn_func_verify(
-            FfiConverterString.lower(proofJson),
-            FfiConverterString.lower(settingsJson),
+        uniffi_ezkl_fn_func_compiled_circuit_validation(
+            FfiConverterData.lower(compiledCircuit), $0
+        )
+    })
+}
+
+/**
+ * Encode verifier calldata from proof and ethereum vk_address
+ */
+public func encodeVerifierCalldata(proof: Data, vkAddress: Data?) throws -> Data {
+    return try FfiConverterData.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_encode_verifier_calldata(
+            FfiConverterData.lower(proof),
+            FfiConverterOptionData.lower(vkAddress), $0
+        )
+    })
+}
+
+/**
+ * Generate proving key from vk, compiled circuit and parameters srs
+ */
+public func genPk(vk: Data, compiledCircuit: Data, srs: Data) throws -> Data {
+    return try FfiConverterData.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_gen_pk(
             FfiConverterData.lower(vk),
+            FfiConverterData.lower(compiledCircuit),
             FfiConverterData.lower(srs), $0
+        )
+    })
+}
+
+/**
+ * Generate verifying key from compiled circuit, and parameters srs
+ */
+public func genVk(compiledCircuit: Data, srs: Data, compressSelectors: Bool) throws -> Data {
+    return try FfiConverterData.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_gen_vk(
+            FfiConverterData.lower(compiledCircuit),
+            FfiConverterData.lower(srs),
+            FfiConverterBool.lower(compressSelectors), $0
+        )
+    })
+}
+
+/**
+ * Generate witness from compiled circuit and input json
+ */
+public func genWitness(compiledCircuit: Data, input: Data) throws -> Data {
+    return try FfiConverterData.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_gen_witness(
+            FfiConverterData.lower(compiledCircuit),
+            FfiConverterData.lower(input), $0
+        )
+    })
+}
+
+/**
+ * Validate the input json
+ */
+public func inputValidation(input: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_input_validation(
+            FfiConverterData.lower(input), $0
+        )
+    })
+}
+
+/**
+ * Validate the proving key given the settings json
+ */
+public func pkValidation(pk: Data, settings: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_pk_validation(
+            FfiConverterData.lower(pk),
+            FfiConverterData.lower(settings), $0
+        )
+    })
+}
+
+/**
+ * Validate the proof json
+ */
+public func proofValidation(proof: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_proof_validation(
+            FfiConverterData.lower(proof), $0
+        )
+    })
+}
+
+/**
+ * Prove in browser with compiled circuit, witness json, proving key, and srs
+ */
+public func prove(witness: Data, pk: Data, compiledCircuit: Data, srs: Data) throws -> Data {
+    return try FfiConverterData.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_prove(
+            FfiConverterData.lower(witness),
+            FfiConverterData.lower(pk),
+            FfiConverterData.lower(compiledCircuit),
+            FfiConverterData.lower(srs), $0
+        )
+    })
+}
+
+/**
+ * Validate the settings json
+ */
+public func settingsValidation(settings: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_settings_validation(
+            FfiConverterData.lower(settings), $0
+        )
+    })
+}
+
+/**
+ * Validate the srs
+ */
+public func srsValidation(srs: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_srs_validation(
+            FfiConverterData.lower(srs), $0
+        )
+    })
+}
+
+/**
+ * Verify proof with vk, proof json, circuit settings json and srs
+ */
+public func verify(proof: Data, vk: Data, settings: Data, srs: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_verify(
+            FfiConverterData.lower(proof),
+            FfiConverterData.lower(vk),
+            FfiConverterData.lower(settings),
+            FfiConverterData.lower(srs), $0
+        )
+    })
+}
+
+/**
+ * Verify aggregate proof with vk, proof, circuit settings and srs
+ */
+public func verifyAggr(proofJs: Data, vk: Data, logrows: UInt64, srs: Data, commitment: String) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_verify_aggr(
+            FfiConverterData.lower(proofJs),
+            FfiConverterData.lower(vk),
+            FfiConverterUInt64.lower(logrows),
+            FfiConverterData.lower(srs),
+            FfiConverterString.lower(commitment), $0
+        )
+    })
+}
+
+/**
+ * Validate the verifying key given the settings json
+ */
+public func vkValidation(vk: Data, settings: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_vk_validation(
+            FfiConverterData.lower(vk),
+            FfiConverterData.lower(settings), $0
+        )
+    })
+}
+
+/**
+ * Validate the witness json
+ */
+public func witnessValidation(witness: Data) throws -> Bool {
+    return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
+        uniffi_ezkl_fn_func_witness_validation(
+            FfiConverterData.lower(witness), $0
         )
     })
 }
@@ -763,20 +726,53 @@ private var initializationResult: InitializationResult = {
     // Get the bindings contract version from our ComponentInterface
     let bindings_contract_version = 26
     // Get the scaffolding contract version by calling the into the dylib
-    let scaffolding_contract_version = ffi_ios_ezkl_uniffi_contract_version()
+    let scaffolding_contract_version = ffi_ezkl_uniffi_contract_version()
     if bindings_contract_version != scaffolding_contract_version {
         return InitializationResult.contractVersionMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_gen_witness() != 19002 {
+    if uniffi_ezkl_checksum_func_compiled_circuit_validation() != 8685 {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_prove() != 14160 {
+    if uniffi_ezkl_checksum_func_encode_verifier_calldata() != 24375 {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_prove_advanced() != 31383 {
+    if uniffi_ezkl_checksum_func_gen_pk() != 38630 {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_ios_ezkl_checksum_func_verify() != 5110 {
+    if uniffi_ezkl_checksum_func_gen_vk() != 36481 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_gen_witness() != 5383 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_input_validation() != 17343 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_pk_validation() != 35955 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_proof_validation() != 31106 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_prove() != 55021 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_settings_validation() != 32878 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_srs_validation() != 64241 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_verify() != 61447 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_verify_aggr() != 61668 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_vk_validation() != 51473 {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if uniffi_ezkl_checksum_func_witness_validation() != 30252 {
         return InitializationResult.apiChecksumMismatch
     }
 

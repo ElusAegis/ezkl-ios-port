@@ -3,8 +3,8 @@ import XCTest
 
 class Tests: XCTestCase {
     
-    var witnessOutput: String = ""
-    var proofOutput: String = ""
+    var witnessOutput: Data = Data()
+    var proofOutput: Data = Data()
     
     
     // Test 1: Test genWitness with valid input
@@ -21,18 +21,12 @@ class Tests: XCTestCase {
         
         // Read the file contents as Data and Strings
         let inputData = try Data(contentsOf: URL(fileURLWithPath: inputPath))
-        guard let inputJson = String(data: inputData, encoding: .utf8) else {
-            XCTFail("Failed to read input.json as a string.")
-            return
-        }
         
         let compiledCircuitData = try Data(contentsOf: URL(fileURLWithPath: compiledCircuitPath))
-        let vkData = try Data(contentsOf: URL(fileURLWithPath: vkPath))
-        let srsData = try Data(contentsOf: URL(fileURLWithPath: srsPath))
-        
+
         // Run the function with the file contents as arguments
         do {
-            witnessOutput = try await genWitness(inputJson: inputJson, compiledCircuit: compiledCircuitData, vk: vkData, srs: srsData)
+            witnessOutput = try genWitness( compiledCircuit: compiledCircuitData, input: inputData)
             XCTAssertFalse(witnessOutput.isEmpty, "Witness should be generated")
         } catch {
             XCTFail("genWitness failed with error: \(error)")
@@ -62,7 +56,7 @@ class Tests: XCTestCase {
         
         // Run the function with the witness output and file contents
         do {
-            proofOutput = try prove(witnessJson: witnessOutput, compiledCircuit: compiledCircuitData, pk: pkData, srs: srsData)
+            proofOutput = try prove(witness: witnessOutput, pk: pkData, compiledCircuit: compiledCircuitData, srs: srsData)
             XCTAssertFalse(proofOutput.isEmpty, "Proof should be generated")
         } catch {
             XCTFail("prove failed with error: \(error)")
@@ -86,13 +80,13 @@ class Tests: XCTestCase {
         }
         
         // Read the file contents as Data and Strings
-        let settingsJson = try String(contentsOf: URL(fileURLWithPath: settingsPath), encoding: .utf8)
+        let settingsJson = try Data(contentsOf: URL(fileURLWithPath: settingsPath))
         let vkData = try Data(contentsOf: URL(fileURLWithPath: vkPath))
         let srsData = try Data(contentsOf: URL(fileURLWithPath: srsPath))
         
         // Run the function with the proof output and file contents
         do {
-            let verificationResult = try verify(proofJson: proofOutput, settingsJson: settingsJson, vk: vkData, srs: srsData)
+            let verificationResult = try verify(proof: proofOutput, vk: vkData, settings: settingsJson, srs: srsData)
             XCTAssertTrue(verificationResult, "Proof should be verified successfully")
         } catch {
             XCTFail("verify failed with error: \(error)")
