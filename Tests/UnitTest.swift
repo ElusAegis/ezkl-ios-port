@@ -41,7 +41,7 @@ class Tests: XCTestCase {
         
         // Set up the file paths
         guard let compiledCircuitPath = Bundle.module.path(forResource: "network", ofType: "ezkl"),
-              let pkPath = Bundle.module.path(forResource: "pk", ofType: "key"),
+              let vkPath = Bundle.module.path(forResource: "vk", ofType: "key"),
               let srsPath = Bundle.module.path(forResource: "kzg", ofType: "srs") else {
             XCTFail("Required files not found in the bundle")
             return
@@ -49,8 +49,10 @@ class Tests: XCTestCase {
         
         // Read the file contents as Data
         let compiledCircuitData = try Data(contentsOf: URL(fileURLWithPath: compiledCircuitPath))
-        let pkData = try Data(contentsOf: URL(fileURLWithPath: pkPath))
+        let vkData = try Data(contentsOf: URL(fileURLWithPath: vkPath))
         let srsData = try Data(contentsOf: URL(fileURLWithPath: srsPath))
+        
+        let pkData = try genPk(vk: vkData, compiledCircuit: compiledCircuitData, srs: srsData)
         
         // Run the function with the witness output and file contents
         do {

@@ -22,7 +22,7 @@ struct GenerateProofButtonView: View {
                 do {
                     statusMessage = "Generating proof... please wait"
                     proofOutput = try await ProofModel().runGenProof(witnessJson: witnessOutput)
-                    statusMessage = "Proof generated. Output size: \(proofOutput.count) characters"
+                    statusMessage = "Proof generated. Output size: \(proofOutput.count) bytes"
                     isVerifyButtonEnabled = true
                 } catch let error as EzklError {
                     ProofModel().handleEZKLError(error, statusMessage: &statusMessage)
@@ -44,7 +44,7 @@ struct GenerateProofButtonView: View {
         .disabled(!isProofButtonEnabled)
         .accessibilityLabel("Generate Proof")
         
-        Text(proofOutput.count > 400 ? "Proof Output Size: \(proofOutput.count) characters" : "Proof Output: \(proofOutput)")
+        Text(proofOutput.count > 400 ? "Proof Output Size: \(proofOutput.count) bytes" : (proofOutput.count == 0 ? "No Proof Yet" : "Proof Output: \(proofOutput)"))
             .padding(.bottom, 8)
         
         Text("Proof Generation Time: \(proofTime)")

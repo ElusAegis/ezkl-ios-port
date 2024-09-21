@@ -22,7 +22,7 @@ struct GenerateWitnessButtonView: View {
                 do {
                     statusMessage = "Generating witness... please wait"
                     witnessOutput = try await WitnessModel().runGenWitness()
-                    statusMessage = "Witness Output size: \(witnessOutput.count) characters"
+                    statusMessage = "Witness Output size: \(witnessOutput.count) bytes"
                     isProofButtonEnabled = true
                     isVerifyButtonEnabled = false
                 } catch let error as EzklError {
@@ -45,7 +45,7 @@ struct GenerateWitnessButtonView: View {
         .disabled(!isWitnessButtonEnabled)
         .accessibilityLabel("Generate Witness")
         
-        Text(witnessOutput.count > 400 ? "Witness Output Size: \(witnessOutput.count) characters" : "Witness Output: \(witnessOutput)")
+        Text(witnessOutput.count > 400 ? "Witness Output Size: \(witnessOutput.count) bytes" : (witnessOutput.count == 0 ? "No Witness Yet" : "Witness Output: \(witnessOutput)"))
             .padding(.bottom, 8)
         
         Text("Witness Generation Time: \(witnessTime)")

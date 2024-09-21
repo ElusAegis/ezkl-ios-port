@@ -1,3 +1,0 @@
-pk.key filter=lfs diff=lfs merge=lfs -text
-vk.key filter=lfs diff=lfs merge=lfs -text
-kzg.srs filter=lfs diff=lfs merge=lfs -text

@@ -39,7 +39,6 @@ let package = Package(
                 .process("EzklAssets/kzg.srs"),
                 .process("EzklAssets/network.ezkl"),
                 .process("EzklAssets/settings.json"),
-                .process("EzklAssets/pk.key"),
                 .process("EzklAssets/vk.key"),
             ]
         )

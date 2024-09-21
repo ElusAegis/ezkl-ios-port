@@ -18,9 +18,6 @@
 		601F37992C96FEE700338C69 /* network.ezkl in Resources */ = {isa = PBXBuildFile; fileRef = 601F378E2C96FEE700338C69 /* network.ezkl */; };
 		601F379A2C96FEE700338C69 /* network.ezkl in Resources */ = {isa = PBXBuildFile; fileRef = 601F378E2C96FEE700338C69 /* network.ezkl */; };
 		601F379B2C96FEE700338C69 /* network.ezkl in Resources */ = {isa = PBXBuildFile; fileRef = 601F378E2C96FEE700338C69 /* network.ezkl */; };
-		601F379C2C96FEE700338C69 /* pk.key in Resources */ = {isa = PBXBuildFile; fileRef = 601F378F2C96FEE700338C69 /* pk.key */; };
-		601F379D2C96FEE700338C69 /* pk.key in Resources */ = {isa = PBXBuildFile; fileRef = 601F378F2C96FEE700338C69 /* pk.key */; };
-		601F379E2C96FEE700338C69 /* pk.key in Resources */ = {isa = PBXBuildFile; fileRef = 601F378F2C96FEE700338C69 /* pk.key */; };
 		601F379F2C96FEE700338C69 /* settings.json in Resources */ = {isa = PBXBuildFile; fileRef = 601F37902C96FEE700338C69 /* settings.json */; };
 		601F37A02C96FEE700338C69 /* settings.json in Resources */ = {isa = PBXBuildFile; fileRef = 601F37902C96FEE700338C69 /* settings.json */; };
 		601F37A12C96FEE700338C69 /* settings.json in Resources */ = {isa = PBXBuildFile; fileRef = 601F37902C96FEE700338C69 /* settings.json */; };
@@ -337,7 +334,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				601F379E2C96FEE700338C69 /* pk.key in Resources */,
 				601F379B2C96FEE700338C69 /* network.ezkl in Resources */,
 				601F37A42C96FEE700338C69 /* vk.key in Resources */,
 				601F37952C96FEE700338C69 /* input.json in Resources */,
@@ -353,7 +349,6 @@
 				601F379F2C96FEE700338C69 /* settings.json in Resources */,
 				60DB4F092C96ED280076CA77 /* Preview Assets.xcassets in Resources */,
 				601F37992C96FEE700338C69 /* network.ezkl in Resources */,
-				601F379C2C96FEE700338C69 /* pk.key in Resources */,
 				601F37962C96FEE700338C69 /* kzg.srs in Resources */,
 				601F37932C96FEE700338C69 /* input.json in Resources */,
 				601F37A22C96FEE700338C69 /* vk.key in Resources */,
@@ -365,7 +360,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				601F379D2C96FEE700338C69 /* pk.key in Resources */,
 				601F379A2C96FEE700338C69 /* network.ezkl in Resources */,
 				601F37A32C96FEE700338C69 /* vk.key in Resources */,
 				601F37942C96FEE700338C69 /* input.json in Resources */,
