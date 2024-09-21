@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ResetButtonView: View {
-    @Binding var witnessOutput: String
-    @Binding var proofOutput: String
+    @Binding var witnessOutput: Data
+    @Binding var proofOutput: Data
     @Binding var verifyOutput: String
     @Binding var witnessTime: String
     @Binding var proofTime: String
@@ -27,8 +27,8 @@ struct ResetButtonView: View {
     }
 
     private func resetStages() {
-        witnessOutput = ""
-        proofOutput = ""
+        witnessOutput = Data()
+        proofOutput = Data()
         verifyOutput = ""
         
         witnessTime = "0.0"

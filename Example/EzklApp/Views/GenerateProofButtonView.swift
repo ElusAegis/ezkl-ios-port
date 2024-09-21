@@ -2,8 +2,8 @@ import SwiftUI
 import EzklPackage
 
 struct GenerateProofButtonView: View {
-    @Binding var witnessOutput: String
-    @Binding var proofOutput: String
+    @Binding var witnessOutput: Data
+    @Binding var proofOutput: Data
     @Binding var isProofButtonEnabled: Bool
     @Binding var isVerifyButtonEnabled: Bool
     @Binding var proofStartTime: Date?
@@ -16,7 +16,7 @@ struct GenerateProofButtonView: View {
             proofStartTime = Date()
             isProofButtonEnabled = false
             isVerifyButtonEnabled = false
-            proofOutput = ""
+            proofOutput = Data()
             
             Task {
                 do {

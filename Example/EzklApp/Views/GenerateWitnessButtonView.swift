@@ -2,7 +2,7 @@ import SwiftUI
 import EzklPackage
 
 struct GenerateWitnessButtonView: View {
-    @Binding var witnessOutput: String
+    @Binding var witnessOutput: Data
     @Binding var isWitnessButtonEnabled: Bool
     @Binding var isProofButtonEnabled: Bool
     @Binding var isVerifyButtonEnabled: Bool
@@ -17,7 +17,7 @@ struct GenerateWitnessButtonView: View {
             isWitnessButtonEnabled = false
             isProofButtonEnabled = false
             isVerifyButtonEnabled = false
-            witnessOutput = ""
+            witnessOutput = Data()
             Task {
                 do {
                     statusMessage = "Generating witness... please wait"

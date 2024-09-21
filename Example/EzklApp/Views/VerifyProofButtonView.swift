@@ -2,7 +2,7 @@ import SwiftUI
 import EzklPackage
 
 struct VerifyProofButtonView: View {
-    @Binding var proofOutput: String
+    @Binding var proofOutput: Data
     @Binding var verifyOutput: String
     @Binding var isVerifyButtonEnabled: Bool
     @Binding var verifyStartTime: Date?

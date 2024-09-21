@@ -2,7 +2,7 @@ import Foundation
 import EzklPackage
 
 struct ProofModel {
-    func runGenProof(witnessJson: String) async throws -> String {
+    func runGenProof(witnessJson: Data) async throws -> Data {
         guard let srsPath = FileHelper.checkFileExists(fileName: "kzg", fileType: "srs"),
               let networkPath = FileHelper.checkFileExists(fileName: "network", fileType: "ezkl"),
               let pkPath = FileHelper.checkFileExists(fileName: "pk", fileType: "key") else {
@@ -13,15 +13,13 @@ struct ProofModel {
         let networkData = try Data(contentsOf: URL(fileURLWithPath: networkPath))
         let pkData = try Data(contentsOf: URL(fileURLWithPath: pkPath))
 
-        return try prove(witnessJson: witnessJson, compiledCircuit: networkData, pk: pkData, srs: srsData)
+        return try prove(witness: witnessJson, pk: pkData, compiledCircuit: networkData,  srs: srsData)
     }
 
     func handleEZKLError(_ error: EzklError, statusMessage: inout String) {
         switch error {
         case .InternalError(let message):
             statusMessage = "Internal Error: \(message)"
-        case .InvalidInput(let message):
-            statusMessage = "Invalid Input: \(message)"
         }
     }
 }

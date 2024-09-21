@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var witnessOutput: String = ""
-    @State private var proofOutput: String = ""
+    @State private var witnessOutput: Data = Data()
+    @State private var proofOutput: Data = Data()
     @State private var verifyOutput: String = ""
     
     @State private var witnessTime: String = "0.0"
