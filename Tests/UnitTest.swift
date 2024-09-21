@@ -12,9 +12,7 @@ class Tests: XCTestCase {
         
         // Set up the file paths (assuming correct test files are available in the bundle)
         guard let inputPath = Bundle.module.path(forResource: "input", ofType: "json"),
-              let compiledCircuitPath = Bundle.module.path(forResource: "network", ofType: "ezkl"),
-              let vkPath = Bundle.module.path(forResource: "vk", ofType: "key"),
-              let srsPath = Bundle.module.path(forResource: "kzg", ofType: "srs") else {
+              let compiledCircuitPath = Bundle.module.path(forResource: "network", ofType: "ezkl") else {
             XCTFail("Required files not found in the bundle")
             return
         }
