@@ -13,8 +13,9 @@ This package is an iOS port of the EZKL library, which allows you to generate an
 - **Generate Witnesses**: Use `genWitness` to generate a witness for a given neural network and input data.
 - **Generate Proofs**: Use `prove` to generate a ZKP based on the witness and circuit.
 - **Verify Proofs**: Use `verify` to verify the generated proof against the circuit and input.
-
-You can learn more about EZKL and its capabilities at [ezkl.xyz](https://ezkl.xyz).
+- Other functionalities useful with EZKL.
+ 
+You can learn more about EZKL and about other capabilities at [ezkl.xyz](https://ezkl.xyz).
 
 ---
 
@@ -28,32 +29,13 @@ An example iOS application demonstrating how to use EZKL within an iOS app is av
 
 ## Installation
 
-### Important Note on Git LFS
-
-Currently, Xcode's Swift Package Manager does not fully support Git Large File Storage (LFS). Due to this limitation, you need to install the package manually by downloading it from GitHub and adding it as a local package dependency in your Xcode project.
-
-For more information on this issue, see [SwiftPM with Git LFS](https://forums.swift.org/t/swiftpm-with-git-lfs/42396).
-
 ### Steps to Install the Package
 
-1. **Download the Package:**
-
-   - Clone the repository or download it as a ZIP file from GitHub.
-     ```bash
-     git clone https://github.com/ElusAegis/ezkl-ios-port.git
-     ```
-   - Ensure that you have Git LFS installed to handle large files:
-     ```bash
-     git lfs install
-     git lfs pull
-     ```
-   > Alternatively, you can download the ZIP file from the GitHub repository.
-
-2. **Add as a Local Package Dependency:**
+**Add the package using Swift Package Manager:**
 
    - In your Xcode project, go to **File** > **Add Packages...**
-   - Click on **Add Local...**
-   - Select the directory where you cloned or downloaded the `ezkl-ios-port` repository.
+   - Click on **Add from Github...**
+   - Paste the URL of this repository and make sure to select the correct branch.
    - Xcode will add the package to your project.
 
 ---
@@ -62,7 +44,6 @@ For more information on this issue, see [SwiftPM with Git LFS](https://forums.sw
 
 - **Xcode**: Version 12 or later.
 - **Swift**: Version 5.3 or later.
-- **Git LFS**: Required to handle large files in the package.
 
 ---
 
@@ -99,20 +80,16 @@ import EzklCore
 #### Generating a Witness
 
 ```swift
-let inputJson = /* Your input data as Json string */
+let inputData = /* Your input data as Data bytes */
 let compiledCircuitData = /* Data representation of your compiled circuit */
-let vkData = /* Data representation of your verification key */
-let srsData = /* Data representation of your SRS */
 
 EzklCore.genWitness(
-    inputJson: inputJson,
-    compiledCircuit: compiledCircuitData,
-    vk: vkData,
-    srs: srsData
+    input: witnessData,
+    compiledCircuit: compiledCircuitData
 ) { result in
     switch result {
-    case .success(let witnessJson):
-        // Use the witnessJson for proof generation
+    case .success(let witnessData):
+        // Use the witnessData for proof generation
     case .failure(let error):
         // Handle error
     }
@@ -122,19 +99,19 @@ EzklCore.genWitness(
 #### Generating a Proof
 
 ```swift
-let witnessJson = /* The witness Json generated earlier */
+let witnessData = /* The witness Data generated earlier */
 let pkData = /* Data representation of your proving key */
 let srsData = /* Data representation of your SRS */
 
 EzklCore.prove(
-    witnessJson: witnessJson,
-    compiledCircuit: compiledCircuitData,
+    witness: witnessData,
     pk: pkData,
+    compiledCircuit: compiledCircuitData,
     srs: srsData
 ) { result in
     switch result {
-    case .success(let proofJson):
-        // Use the proofJson as needed
+    case .success(let proofData):
+        // Use the proofData as needed
     case .failure(let error):
         // Handle error
     }
@@ -144,15 +121,15 @@ EzklCore.prove(
 #### Verifying a Proof
 
 ```swift
-let proofJson = /* The proof Json generated earlier */
-let settingsJson = /* The settings Json for your circuit */
+let proofData = /* The proof Data generated earlier */
+let settingsData = /* The settings Data bytes for your circuit */
 let vkData = /* Data representation of your verification key */
 let srsData = /* Data representation of your SRS */
 
 EzklCore.verify(
-    proofJson: proofJson,
-    settingsJson: settingsJson,
+    proof: proofData,
     vk: vkData,
+    settings: settingsData,
     srs: srsData
 ) { result in
     switch result {
@@ -174,7 +151,7 @@ EzklCore.verify(
 
 - **Data Formats:**
 
-  - **Input and Settings:** Should be provided as Json strings.
+  - **Input and Settings:** Should be provided as Json strings in 'Data' bytes.
   - **Circuit, PK, VK, SRS:** Should be loaded as binary `Data`.
 
 - **EZKL CLI Usage:**
@@ -186,14 +163,14 @@ EzklCore.verify(
 
 ## Regenerating the Package
 
-The package is built from the Rust EZKL library using the [ezkl-ios-rust-porter](https://github.com/ElusAegis/ezkl-ios-rust-porter) repository. If you wish to regenerate the bindings manually:
+The package is built from the Rust EZKL library fork at [ezkl-for-ios](https://github.com/ElusAegis/ezkl-for-ios) repository. If you wish to regenerate the bindings manually:
 
 1. **Clone the Porter Repository:**
 
    ```bash
-   git clone https://github.com/ElusAegis/ezkl-ios-rust-porter.git
+   git clone https://github.com/ElusAegis/ezkl-for-ios.git
    ```
 
 2. **Generate the Bindings:**
 
-   - Follow the instructions in the `ezkl-ios-rust-porter` repository to generate the bindings.
+   - Follow the instructions in the `ezkl-for-ios` repository to generate the bindings.
