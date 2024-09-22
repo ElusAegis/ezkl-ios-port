@@ -44,6 +44,10 @@ An example iOS application demonstrating how to use EZKL within an iOS app is av
 
 - **Xcode**: Version 12 or later.
 - **Swift**: Version 5.3 or later.
+- **Computer**: ARM Macbook (_XCode_ only runs on _macOS_).
+
+
+ > To develop on Intel x86 Macbook, please build the library manually using the instructions at the bottom.
 
 ---
 
