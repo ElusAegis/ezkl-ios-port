@@ -4,6 +4,8 @@ Welcome to the **EZKL iOS Package**! This repository provides a Swift Package fo
 
 > **Note:** This is an experimental project and should not be used in production environments.
 
+  **Warning:** This is a depreciated branch. To use this Package version, please manually regenerate the package, as it is missing the `Sources/EzklCoreBindings/ios-arm64/libios_ezkl.a` and `Sources/EzklCoreBindings/ios-arm64_x86_64-simulator/libios_ezkl.a` files, which were previously hosted using Git LFS.
+
 ---
 
 ## Overview
