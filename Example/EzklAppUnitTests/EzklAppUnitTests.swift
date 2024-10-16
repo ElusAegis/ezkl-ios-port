@@ -5,7 +5,7 @@ import EzklPackage
 final class EzklAppUnitTests: XCTestCase {
     
     var witnessOutput: Data = Data()
-    var pkData: Data = Data()
+    var vkData: Data = Data()
     var proofOutput: Data = Data()
     
     // Test 1: Test genWitness with valid input
@@ -40,7 +40,6 @@ final class EzklAppUnitTests: XCTestCase {
         
         // Set up the file paths
         guard let compiledCircuitPath = Bundle.main.path(forResource: "network", ofType: "ezkl"),
-              let vkPath = Bundle.main.path(forResource: "vk", ofType: "key"),
               let srsPath = Bundle.main.path(forResource: "kzg", ofType: "srs") else {
             XCTFail("Required files not found in the bundle")
             return
@@ -48,14 +47,18 @@ final class EzklAppUnitTests: XCTestCase {
         
         // Read the file contents as Data
         let compiledCircuitData = try Data(contentsOf: URL(fileURLWithPath: compiledCircuitPath))
-        let vkData = try Data(contentsOf: URL(fileURLWithPath: vkPath))
         let srsData = try Data(contentsOf: URL(fileURLWithPath: srsPath))
         
-        // Generate the PK from VK, because PK is too large to be stored in the repo
+        // Generate the VK
         do {
-            pkData = try genPk(vk: vkData, compiledCircuit: compiledCircuitData, srs: srsData)
+            vkData = try genVk(compiledCircuit: compiledCircuitData, srs: srsData, compressSelectors: true)
         } catch {
-            XCTFail("Failed to generate the Proving Key with error: \(error)")
+            XCTFail("prove failed with error: \(error)")
+        }
+
+        guard let pkData = try? genPk(vk: vkData, compiledCircuit: compiledCircuitData, srs: srsData) else {
+            XCTFail("prove failed: failed to generate the Pk")
+            return
         }
         
         // Run the function with the witness output and file contents
@@ -77,7 +80,6 @@ final class EzklAppUnitTests: XCTestCase {
         
         // Set up the file paths
         guard let settingsPath = Bundle.main.path(forResource: "settings", ofType: "json"),
-              let vkPath = Bundle.main.path(forResource: "vk", ofType: "key"),
               let srsPath = Bundle.main.path(forResource: "kzg", ofType: "srs") else {
             XCTFail("Required files not found in the bundle")
             return
@@ -85,12 +87,11 @@ final class EzklAppUnitTests: XCTestCase {
         
         // Read the file contents as Data and Strings
         let settingsJson = try Data(contentsOf: URL(fileURLWithPath: settingsPath))
-        let vkData = try Data(contentsOf: URL(fileURLWithPath: vkPath))
         let srsData = try Data(contentsOf: URL(fileURLWithPath: srsPath))
         
         // Run the function with the proof output and file contents
         do {
-            let verificationResult = try verify(proof: proofOutput, vk: vkData, settings: settingsJson,  srs: srsData)
+            let verificationResult = try verify(proof: proofOutput, vk: vkData, settings: settingsJson, srs: srsData)
             XCTAssertTrue(verificationResult, "Proof should be verified successfully")
         } catch {
             XCTFail("verify failed with error: \(error)")

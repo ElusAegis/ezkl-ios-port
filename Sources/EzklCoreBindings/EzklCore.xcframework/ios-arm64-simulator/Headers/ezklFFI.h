@@ -313,7 +313,7 @@ int8_t uniffi_ezkl_fn_func_verify(RustBuffer proof, RustBuffer vk, RustBuffer se
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_EZKL_FN_FUNC_VERIFY_AGGR
 #define UNIFFI_FFIDEF_UNIFFI_EZKL_FN_FUNC_VERIFY_AGGR
-int8_t uniffi_ezkl_fn_func_verify_aggr(RustBuffer proof_js, RustBuffer vk, uint64_t logrows, RustBuffer srs, RustBuffer commitment, RustCallStatus *_Nonnull out_status
+int8_t uniffi_ezkl_fn_func_verify_aggr(RustBuffer proof, RustBuffer vk, uint64_t logrows, RustBuffer srs, RustBuffer commitment, RustCallStatus *_Nonnull out_status
 );
 #endif
 #ifndef UNIFFI_FFIDEF_UNIFFI_EZKL_FN_FUNC_VK_VALIDATION

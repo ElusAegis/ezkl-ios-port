@@ -3,6 +3,7 @@ import EzklPackage
 
 struct GenerateProofButtonView: View {
     @Binding var witnessOutput: Data
+    @Binding var vkData: Data
     @Binding var proofOutput: Data
     @Binding var isProofButtonEnabled: Bool
     @Binding var isVerifyButtonEnabled: Bool
@@ -21,7 +22,9 @@ struct GenerateProofButtonView: View {
             Task {
                 do {
                     statusMessage = "Generating proof... please wait"
-                    proofOutput = try await ProofModel().runGenProof(witnessJson: witnessOutput)
+                    let result = try await ProofModel().runGenProof(witnessJson: witnessOutput)
+                    vkData = result.vkData
+                    proofOutput = result.proofOutput
                     statusMessage = "Proof generated. Output size: \(proofOutput.count) bytes"
                     isVerifyButtonEnabled = true
                 } catch let error as EzklError {

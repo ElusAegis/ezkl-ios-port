@@ -3,6 +3,7 @@ import EzklPackage
 
 struct VerifyProofButtonView: View {
     @Binding var proofOutput: Data
+    @Binding var vkData: Data
     @Binding var verifyOutput: String
     @Binding var isVerifyButtonEnabled: Bool
     @Binding var verifyStartTime: Date?
@@ -19,7 +20,7 @@ struct VerifyProofButtonView: View {
             Task {
                 do {
                     statusMessage = "Verifying proof... please wait"
-                    verifyOutput = "\(try await VerifyModel().runVerify(proofJson: proofOutput))"
+                    verifyOutput = "\(try await VerifyModel().runVerify(vkData: vkData, proofJson: proofOutput))"
                     statusMessage = "Verification complete"
                 } catch let error as EzklError {
                     VerifyModel().handleEZKLError(error, statusMessage: &statusMessage)

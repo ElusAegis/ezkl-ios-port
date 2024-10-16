@@ -679,10 +679,10 @@ public func verify(proof: Data, vk: Data, settings: Data, srs: Data) throws -> B
 /**
  * Verify aggregate proof with vk, proof, circuit settings and srs
  */
-public func verifyAggr(proofJs: Data, vk: Data, logrows: UInt64, srs: Data, commitment: String) throws -> Bool {
+public func verifyAggr(proof: Data, vk: Data, logrows: UInt64, srs: Data, commitment: String) throws -> Bool {
     return try FfiConverterBool.lift(rustCallWithError(FfiConverterTypeEZKLError.lift) {
         uniffi_ezkl_fn_func_verify_aggr(
-            FfiConverterData.lower(proofJs),
+            FfiConverterData.lower(proof),
             FfiConverterData.lower(vk),
             FfiConverterUInt64.lower(logrows),
             FfiConverterData.lower(srs),
@@ -766,7 +766,7 @@ private var initializationResult: InitializationResult = {
     if uniffi_ezkl_checksum_func_verify() != 61447 {
         return InitializationResult.apiChecksumMismatch
     }
-    if uniffi_ezkl_checksum_func_verify_aggr() != 61668 {
+    if uniffi_ezkl_checksum_func_verify_aggr() != 234 {
         return InitializationResult.apiChecksumMismatch
     }
     if uniffi_ezkl_checksum_func_vk_validation() != 51473 {

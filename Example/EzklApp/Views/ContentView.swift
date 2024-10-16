@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var vkData: Data = Data()
     @State private var witnessOutput: Data = Data()
     @State private var proofOutput: Data = Data()
     @State private var verifyOutput: String = ""
@@ -35,6 +36,7 @@ struct ContentView: View {
 
             GenerateProofButtonView(
                 witnessOutput: $witnessOutput,
+                vkData: $vkData,
                 proofOutput: $proofOutput,
                 isProofButtonEnabled: $isProofButtonEnabled,
                 isVerifyButtonEnabled: $isVerifyButtonEnabled,
@@ -45,6 +47,7 @@ struct ContentView: View {
             
             VerifyProofButtonView(
                 proofOutput: $proofOutput,
+                vkData: $vkData,
                 verifyOutput: $verifyOutput,
                 isVerifyButtonEnabled: $isVerifyButtonEnabled,
                 verifyStartTime: $verifyStartTime,
